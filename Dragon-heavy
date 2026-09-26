@@ -1,0 +1,107 @@
+--[[
+    DELTA MOBILE - BOTÕES QUE SIMULAM TECLAS F e Q
+    Use junto com outro script que já esteja configurado pra F e Q
+--]]
+
+local LP = game:GetService("Players").LocalPlayer
+local VIM = game:GetService("VirtualInputManager")
+
+local parent = gethui and gethui() or LP:WaitForChild("PlayerGui")
+if parent:FindFirstChild("KeyButtons") then parent.KeyButtons:Destroy() end
+
+-- ===== GUI =====
+local gui = Instance.new("ScreenGui")
+gui.Name = "KeyButtons"
+gui.ResetOnSpawn = false
+gui.Parent = parent
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 220, 0, 150)
+main.Position = UDim2.new(0, 15, 0.4, 0)
+main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+main.BorderSizePixel = 0
+main.Active = true
+main.Draggable = true
+
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(220, 20, 20)
+stroke.Thickness = 2
+
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, 0, 0, 32)
+title.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+title.Text = "⚡ DELTA ⚡"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 14
+title.BorderSizePixel = 0
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 10)
+
+-- Botão fechar
+local close = Instance.new("TextButton", main)
+close.Size = UDim2.new(0, 26, 0, 26)
+close.Position = UDim2.new(1, -30, 0, 3)
+close.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+close.Text = "X"
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
+close.Font = Enum.Font.GothamBold
+close.TextSize = 13
+close.BorderSizePixel = 0
+Instance.new("UICorner", close).CornerRadius = UDim.new(0, 5)
+close.MouseButton1Click:Connect(function() gui:Destroy() end)
+
+-- ===== FUNÇÃO QUE SIMULA A TECLA =====
+local function apertarTecla(keyCode)
+    -- Pressiona
+    VIM:SendKeyEvent(true, keyCode, false, game)
+    task.wait(0.05)
+    -- Solta
+    VIM:SendKeyEvent(false, keyCode, false, game)
+end
+
+-- ===== BOTÃO F =====
+local btnF = Instance.new("TextButton", main)
+btnF.Size = UDim2.new(0, 90, 0, 70)
+btnF.Position = UDim2.new(0, 12, 0, 45)
+btnF.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+btnF.Text = "✈️\nF"
+btnF.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnF.Font = Enum.Font.GothamBold
+btnF.TextSize = 22
+btnF.BorderSizePixel = 0
+Instance.new("UICorner", btnF).CornerRadius = UDim.new(0, 8)
+local sf = Instance.new("UIStroke", btnF)
+sf.Color = Color3.fromRGB(220, 20, 20)
+sf.Thickness = 2
+
+btnF.MouseButton1Click:Connect(function()
+    btnF.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    task.wait(0.15)
+    btnF.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    apertarTecla(Enum.KeyCode.F)
+end)
+
+-- ===== BOTÃO Q =====
+local btnQ = Instance.new("TextButton", main)
+btnQ.Size = UDim2.new(0, 90, 0, 70)
+btnQ.Position = UDim2.new(1, -102, 0, 45)
+btnQ.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+btnQ.Text = "🚀\nQ"
+btnQ.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnQ.Font = Enum.Font.GothamBold
+btnQ.TextSize = 22
+btnQ.BorderSizePixel = 0
+Instance.new("UICorner", btnQ).CornerRadius = UDim.new(0, 8)
+local sq = Instance.new("UIStroke", btnQ)
+sq.Color = Color3.fromRGB(220, 20, 20)
+sq.Thickness = 2
+
+btnQ.MouseButton1Click:Connect(function()
+    btnQ.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    task.wait(0.15)
+    btnQ.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    apertarTecla(Enum.KeyCode.Q)
+end)
+
+print("✅ Botões F e Q prontos! Toque para simular as teclas.")
