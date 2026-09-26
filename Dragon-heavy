@@ -1,0 +1,630 @@
+--[[
+    DRAGON HEAVY - COMPLETO FINAL
+    Janela 1: Velocidade, Pulo, Joystick>WASD
+    Janela 2: F, Q, Teleporte
+    Janela 3: Botao W (SEGURA enquanto pressiona)
+    Tudo 25% translucido
+--]]
+
+local LP = game:GetService("Players").LocalPlayer
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local VIM = game:GetService("VirtualInputManager")
+local cam = workspace.CurrentCamera
+
+local parent = gethui and gethui() or LP:WaitForChild("PlayerGui")
+if parent:FindFirstChild("DragonHeavyMain") then parent.DragonHeavyMain:Destroy() end
+if parent:FindFirstChild("DragonHeavySec") then parent.DragonHeavySec:Destroy() end
+if parent:FindFirstChild("DragonHeavyW") then parent.DragonHeavyW:Destroy() end
+
+-- ===== HELPERS =====
+local function novo(tipo, props)
+    local i = Instance.new(tipo)
+    for k, v in pairs(props) do i[k] = v end
+    return i
+end
+
+local function H()
+    local c = LP.Character
+    return c and c:FindFirstChildOfClass("Humanoid")
+end
+
+local function HRP()
+    local c = LP.Character
+    return c and c:FindFirstChild("HumanoidRootPart")
+end
+
+local function apertarTecla(keyCode)
+    VIM:SendKeyEvent(true, keyCode, false, game)
+    task.wait(0.05)
+    VIM:SendKeyEvent(false, keyCode, false, game)
+end
+
+-- =========================================================
+-- JANELA 1 - PRINCIPAL
+-- =========================================================
+local guiM = Instance.new("ScreenGui")
+guiM.Name = "DragonHeavyMain"
+guiM.ResetOnSpawn = false
+guiM.Parent = parent
+
+local main = novo("Frame", {
+    Parent = guiM,
+    Size = UDim2.new(0, 260, 0, 320),
+    Position = UDim2.new(0, 15, 0.25, 0),
+    BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+    Active = true,
+    Draggable = true,
+})
+novo("UICorner", {Parent = main, CornerRadius = UDim.new(0, 10)})
+novo("UIStroke", {Parent = main, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+local titleM = novo("TextLabel", {
+    Parent = main,
+    Size = UDim2.new(1, 0, 0, 34),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "DRAGON HEAVY",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 14,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = titleM, CornerRadius = UDim.new(0, 10)})
+
+local closeM = novo("TextButton", {
+    Parent = main,
+    Size = UDim2.new(0, 26, 0, 26),
+    Position = UDim2.new(1, -30, 0, 4),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "X",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 13,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = closeM, CornerRadius = UDim.new(0, 5)})
+closeM.MouseButton1Click:Connect(function() guiM:Destroy() end)
+
+local scrollM = novo("ScrollingFrame", {
+    Parent = main,
+    Size = UDim2.new(1, -20, 1, -44),
+    Position = UDim2.new(0, 10, 0, 40),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ScrollBarThickness = 4,
+    ScrollBarImageColor3 = Color3.fromRGB(220, 20, 20),
+    CanvasSize = UDim2.new(0, 0, 0, 400),
+})
+novo("UIListLayout", {Parent = scrollM, Padding = UDim.new(0, 8)})
+
+local function criarBotao(pai, txt, altura)
+    local b = novo("TextButton", {
+        Parent = pai,
+        Size = UDim2.new(1, -10, 0, altura or 44),
+        BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+        BackgroundTransparency = 0.25,
+        Text = txt,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        BorderSizePixel = 0,
+    })
+    novo("UICorner", {Parent = b, CornerRadius = UDim.new(0, 8)})
+    novo("UIStroke", {Parent = b, Color = Color3.fromRGB(220, 20, 20), Thickness = 1})
+    return b
+end
+
+-- ===== VELOCIDADE =====
+local velLabel = novo("TextLabel", {
+    Parent = scrollM,
+    Size = UDim2.new(1, -10, 0, 30),
+    BackgroundColor3 = Color3.fromRGB(40, 0, 0),
+    BackgroundTransparency = 0.25,
+    Text = "VELOCIDADE: 16",
+    TextColor3 = Color3.fromRGB(255, 80, 80),
+    Font = Enum.Font.GothamBold,
+    TextSize = 13,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = velLabel, CornerRadius = UDim.new(0, 6)})
+
+local velFrame = novo("Frame", {
+    Parent = scrollM,
+    Size = UDim2.new(1, -10, 0, 44),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = velFrame, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = velFrame, Color = Color3.fromRGB(220, 20, 20), Thickness = 1})
+
+local btnVelMenos = novo("TextButton", {
+    Parent = velFrame,
+    Size = UDim2.new(0.3, 0, 1, 0),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "-",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnVelMenos, CornerRadius = UDim.new(0, 8)})
+
+local btnVelMais = novo("TextButton", {
+    Parent = velFrame,
+    Size = UDim2.new(0.3, 0, 1, 0),
+    Position = UDim2.new(0.7, 0, 0, 0),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "+",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnVelMais, CornerRadius = UDim.new(0, 8)})
+
+local velValor = novo("TextLabel", {
+    Parent = velFrame,
+    Size = UDim2.new(0.4, 0, 1, 0),
+    Position = UDim2.new(0.3, 0, 0, 0),
+    BackgroundTransparency = 1,
+    Text = "16",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 18,
+})
+
+local velocidade = 16
+
+local function aplicarVelocidade()
+    local h = H()
+    if h then h.WalkSpeed = velocidade end
+    velLabel.Text = "VELOCIDADE: " .. velocidade
+    velValor.Text = tostring(velocidade)
+end
+
+btnVelMais.MouseButton1Click:Connect(function()
+    velocidade = velocidade + 10
+    aplicarVelocidade()
+end)
+
+btnVelMenos.MouseButton1Click:Connect(function()
+    velocidade = math.max(0, velocidade - 10)
+    aplicarVelocidade()
+end)
+
+-- ===== PULO =====
+local puloLabel = novo("TextLabel", {
+    Parent = scrollM,
+    Size = UDim2.new(1, -10, 0, 30),
+    BackgroundColor3 = Color3.fromRGB(40, 0, 0),
+    BackgroundTransparency = 0.25,
+    Text = "PULO: 50",
+    TextColor3 = Color3.fromRGB(255, 80, 80),
+    Font = Enum.Font.GothamBold,
+    TextSize = 13,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = puloLabel, CornerRadius = UDim.new(0, 6)})
+
+local puloFrame = novo("Frame", {
+    Parent = scrollM,
+    Size = UDim2.new(1, -10, 0, 44),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = puloFrame, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = puloFrame, Color = Color3.fromRGB(220, 20, 20), Thickness = 1})
+
+local btnPuloMenos = novo("TextButton", {
+    Parent = puloFrame,
+    Size = UDim2.new(0.3, 0, 1, 0),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "-",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnPuloMenos, CornerRadius = UDim.new(0, 8)})
+
+local btnPuloMais = novo("TextButton", {
+    Parent = puloFrame,
+    Size = UDim2.new(0.3, 0, 1, 0),
+    Position = UDim2.new(0.7, 0, 0, 0),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "+",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnPuloMais, CornerRadius = UDim.new(0, 8)})
+
+local puloValor = novo("TextLabel", {
+    Parent = puloFrame,
+    Size = UDim2.new(0.4, 0, 1, 0),
+    Position = UDim2.new(0.3, 0, 0, 0),
+    BackgroundTransparency = 1,
+    Text = "50",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 18,
+})
+
+local pulo = 50
+
+local function aplicarPulo()
+    local h = H()
+    if h then
+        h.UseJumpPower = true
+        h.JumpPower = pulo
+    end
+    puloLabel.Text = "PULO: " .. pulo
+    puloValor.Text = tostring(pulo)
+end
+
+btnPuloMais.MouseButton1Click:Connect(function()
+    pulo = pulo + 25
+    aplicarPulo()
+end)
+
+btnPuloMenos.MouseButton1Click:Connect(function()
+    pulo = math.max(0, pulo - 25)
+    aplicarPulo()
+end)
+
+-- ===== RESET =====
+local btnReset = criarBotao(scrollM, "RESETAR (16 / 50)", 40)
+btnReset.MouseButton1Click:Connect(function()
+    velocidade = 16
+    pulo = 50
+    aplicarVelocidade()
+    aplicarPulo()
+end)
+
+-- ===== JOYSTICK > WASD =====
+local wasdAtivo = false
+local btnWASD = criarBotao(scrollM, "JOYSTICK > WASD - OFF", 48)
+btnWASD.TextSize = 12
+
+btnWASD.MouseButton1Click:Connect(function()
+    wasdAtivo = not wasdAtivo
+    btnWASD.Text = "JOYSTICK > WASD - " .. (wasdAtivo and "ON" or "OFF")
+    btnWASD.BackgroundColor3 = wasdAtivo and Color3.fromRGB(180, 10, 10) or Color3.fromRGB(25, 25, 25)
+end)
+
+local teclasAtivas = {
+    [Enum.KeyCode.W] = false,
+    [Enum.KeyCode.A] = false,
+    [Enum.KeyCode.S] = false,
+    [Enum.KeyCode.D] = false,
+}
+
+local function setTecla(key, estado)
+    if teclasAtivas[key] == estado then return end
+    teclasAtivas[key] = estado
+    pcall(function() VIM:SendKeyEvent(estado, key, false, game) end)
+end
+
+local function soltarTodas()
+    for k, _ in pairs(teclasAtivas) do setTecla(k, false) end
+end
+
+RunService.RenderStepped:Connect(function()
+    if not wasdAtivo then soltarTodas() return end
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    local camera = workspace.CurrentCamera
+    if not camera then return end
+    local md = hum.MoveDirection
+    if md.Magnitude < 0.1 then soltarTodas() return end
+    local look = camera.CFrame.LookVector
+    look = Vector3.new(look.X, 0, look.Z)
+    if look.Magnitude > 0 then look = look.Unit end
+    local right = camera.CFrame.RightVector
+    right = Vector3.new(right.X, 0, right.Z)
+    if right.Magnitude > 0 then right = right.Unit end
+    local dotF = md:Dot(look)
+    local dotR = md:Dot(right)
+    local lim = 0.35
+    setTecla(Enum.KeyCode.W, dotF > lim)
+    setTecla(Enum.KeyCode.S, dotF < -lim)
+    setTecla(Enum.KeyCode.D, dotR > lim)
+    setTecla(Enum.KeyCode.A, dotR < -lim)
+end)
+
+LP.CharacterAdded:Connect(function(char)
+    task.wait(1)
+    local h = char:FindFirstChildOfClass("Humanoid")
+    if h then
+        h.WalkSpeed = velocidade
+        h.UseJumpPower = true
+        h.JumpPower = pulo
+    end
+end)
+
+-- =========================================================
+-- JANELA 2 - SECUNDARIO (F, Q, TELEPORTE)
+-- =========================================================
+local guiS = Instance.new("ScreenGui")
+guiS.Name = "DragonHeavySec"
+guiS.ResetOnSpawn = false
+guiS.Parent = parent
+
+local sec = novo("Frame", {
+    Parent = guiS,
+    Size = UDim2.new(0, 220, 0, 235),
+    Position = UDim2.new(1, -235, 0.25, 0),
+    BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+    Active = true,
+    Draggable = true,
+})
+novo("UICorner", {Parent = sec, CornerRadius = UDim.new(0, 10)})
+novo("UIStroke", {Parent = sec, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+local titleS = novo("TextLabel", {
+    Parent = sec,
+    Size = UDim2.new(1, 0, 0, 32),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "DRAGON HEAVY",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 12,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = titleS, CornerRadius = UDim.new(0, 10)})
+
+local closeS = novo("TextButton", {
+    Parent = sec,
+    Size = UDim2.new(0, 26, 0, 26),
+    Position = UDim2.new(1, -30, 0, 3),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "X",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 13,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = closeS, CornerRadius = UDim.new(0, 5)})
+closeS.MouseButton1Click:Connect(function() guiS:Destroy() end)
+
+local btnF = novo("TextButton", {
+    Parent = sec,
+    Size = UDim2.new(0, 90, 0, 55),
+    Position = UDim2.new(0, 12, 0, 42),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    Text = "F",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnF, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = btnF, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+local btnQ = novo("TextButton", {
+    Parent = sec,
+    Size = UDim2.new(0, 90, 0, 55),
+    Position = UDim2.new(1, -102, 0, 42),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    Text = "Q",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnQ, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = btnQ, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+btnF.MouseButton1Click:Connect(function()
+    btnF.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    task.wait(0.15)
+    btnF.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    apertarTecla(Enum.KeyCode.F)
+end)
+
+btnQ.MouseButton1Click:Connect(function()
+    btnQ.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    task.wait(0.15)
+    btnQ.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    apertarTecla(Enum.KeyCode.Q)
+end)
+
+local tpAtivo = false
+local btnTP = novo("TextButton", {
+    Parent = sec,
+    Size = UDim2.new(1, -24, 0, 38),
+    Position = UDim2.new(0, 12, 0, 105),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    Text = "ATIVAR TELEPORTE",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 12,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnTP, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = btnTP, Color = Color3.fromRGB(220, 20, 20), Thickness = 1})
+
+btnTP.MouseButton1Click:Connect(function()
+    tpAtivo = not tpAtivo
+    btnTP.Text = tpAtivo and "DESATIVAR TELEPORTE" or "ATIVAR TELEPORTE"
+    btnTP.BackgroundColor3 = tpAtivo and Color3.fromRGB(180, 10, 10) or Color3.fromRGB(25, 25, 25)
+end)
+
+local proximoPonto = nil
+local btnMarcar = novo("TextButton", {
+    Parent = sec,
+    Size = UDim2.new(1, -24, 0, 34),
+    Position = UDim2.new(0, 12, 0, 150),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    Text = "MARCAR / IR PARA PONTO",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 10,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnMarcar, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = btnMarcar, Color = Color3.fromRGB(220, 20, 20), Thickness = 1})
+
+btnMarcar.MouseButton1Click:Connect(function()
+    local hrp = HRP()
+    if not hrp then return end
+    if proximoPonto then
+        hrp.CFrame = CFrame.new(proximoPonto)
+        proximoPonto = nil
+        btnMarcar.Text = "MARCAR / IR PARA PONTO"
+        btnMarcar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    else
+        proximoPonto = hrp.Position
+        btnMarcar.Text = "IR PARA PONTO SALVO"
+        btnMarcar.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    end
+end)
+
+local touchIniciado = false
+local touchPosicao = nil
+
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if not tpAtivo then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        touchIniciado = true
+        touchPosicao = input.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input, gp)
+    if gp then return end
+    if not tpAtivo then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        touchPosicao = input.Position
+    end
+end)
+
+UIS.InputEnded:Connect(function(input, gp)
+    if gp then return end
+    if not tpAtivo then return end
+    if input.UserInputType == Enum.UserInputType.Touch and touchIniciado then
+        touchIniciado = false
+        if touchPosicao and (input.Position - touchPosicao).Magnitude < 15 then
+            local hrp = HRP()
+            if hrp and cam then
+                local ray = cam:ViewportPointToRay(input.Position.X, input.Position.Y)
+                local params = RaycastParams.new()
+                params.FilterType = Enum.RaycastFilterType.Exclude
+                params.FilterDescendantsInstances = {LP.Character}
+                local result = workspace:Raycast(ray.Origin, ray.Direction * 5000, params)
+                if result then
+                    hrp.CFrame = CFrame.new(result.Position + Vector3.new(0, 3, 0))
+                else
+                    local pontoDistante = ray.Origin + ray.Direction * 200
+                    hrp.CFrame = CFrame.new(pontoDistante)
+                end
+            end
+        end
+    end
+end)
+
+-- =========================================================
+-- JANELA 3 - BOTAO W (SEGURA ENQUANTO PRESSIONA)
+-- =========================================================
+local guiW = Instance.new("ScreenGui")
+guiW.Name = "DragonHeavyW"
+guiW.ResetOnSpawn = false
+guiW.Parent = parent
+
+local winW = novo("Frame", {
+    Parent = guiW,
+    Size = UDim2.new(0, 100, 0, 110),
+    Position = UDim2.new(0.5, -50, 0, 100),
+    BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+    BackgroundTransparency = 0.25,
+    BorderSizePixel = 0,
+    Active = true,
+    Draggable = true,
+})
+novo("UICorner", {Parent = winW, CornerRadius = UDim.new(0, 10)})
+novo("UIStroke", {Parent = winW, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+local titleW = novo("TextLabel", {
+    Parent = winW,
+    Size = UDim2.new(1, 0, 0, 26),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "DRAGON HEAVY",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 10,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = titleW, CornerRadius = UDim.new(0, 10)})
+
+local closeW = novo("TextButton", {
+    Parent = winW,
+    Size = UDim2.new(0, 20, 0, 20),
+    Position = UDim2.new(1, -23, 0, 3),
+    BackgroundColor3 = Color3.fromRGB(180, 10, 10),
+    BackgroundTransparency = 0.25,
+    Text = "X",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 11,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = closeW, CornerRadius = UDim.new(0, 5)})
+closeW.MouseButton1Click:Connect(function()
+    pcall(function() VIM:SendKeyEvent(false, Enum.KeyCode.W, false, game) end)
+    guiW:Destroy()
+end)
+
+local btnW = novo("TextButton", {
+    Parent = winW,
+    Size = UDim2.new(1, -20, 0, 60),
+    Position = UDim2.new(0, 10, 0, 36),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BackgroundTransparency = 0.25,
+    Text = "W",
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold,
+    TextSize = 28,
+    BorderSizePixel = 0,
+})
+novo("UICorner", {Parent = btnW, CornerRadius = UDim.new(0, 8)})
+novo("UIStroke", {Parent = btnW, Color = Color3.fromRGB(220, 20, 20), Thickness = 2})
+
+local wPressionado = false
+
+local function segurarW()
+    if wPressionado then return end
+    wPressionado = true
+    btnW.BackgroundColor3 = Color3.fromRGB(180, 10, 10)
+    btnW.Text = "W ON"
+    pcall(function() VIM:SendKeyEvent(true, Enum.KeyCode.W, false, game) end)
+end
+
+local function soltarW()
+    if not wPressionado then return end
+    wPressionado = false
+    btnW.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btnW.Text = "W"
+    pcall(function() VIM:SendKeyEvent(false, Enum.KeyCode.W, false, gam
