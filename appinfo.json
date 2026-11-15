@@ -1,0 +1,12 @@
+{
+  "id": "com.exemplo.blocos",
+  "version": "1.0.0",
+  "vendor": "Meu Estudio",
+  "type": "web",
+  "main": "index.html",
+  "title": "Blocos",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgColor": "#0e1a24",
+  "resolution": "1920x1080"
+}
